@@ -1,59 +1,6 @@
-ELEM = React.createElement
-
-
-FacebookMessageView = React.createFactory React.createClass
-  mixins: [QueryMixin, SyncState],
-  getInitialState: ->
-    {
-      facts: []
-    }
-    
-  getQuery: (query) ->
-    num = parseInt(query)
-    qrx = RegExp query
-
-    or_stmt = []
-    if num != NaN
-      or_stmt = or_stmt.concat [
-          {frm: num},
-          {to: num},
-        ]
-    or_stmt = or_stmt.concat [
-      {content: qrx},
-      {frm_name: qrx},
-      {to_name: qrx},
-      ]
-    $and:
-      [
-        kind: 'message',
-        $or: or_stmt
-      ]
-
-  na: (s) ->
-    return 'N/A' if s == undefined
-    return '(empty)' if s == []
-    return s
-  
-  render: ->
-    unless @props.shown
-      return DOM.div()
-    DOM.div class: 'facebook-messages-pane',
-      DOM.table {class:'table'}, [
-        DOM.thead(
-          DOM.tr [
-            _.map ['from', 'to', 'content'], (fn)-> DOM.th(key:fn, fn)
-            ]),
-        DOM.tbody @state.facts.map (fact) =>
-            DOM.tr key: fact._id, [
-              DOM.td(key: 'from', "#{@na(fact.frm)} #{@na(fact.frm_name)}"),
-              DOM.td(key: 'to', "#{@na(fact.to)}, #{@na(fact.to_name)}"),
-              DOM.td(key: 'content', "#{fact.content}")
-              ]
-        ]
-
 
 PaneController = React.createFactory React.createClass
-  mixins: [SyncState]
+  mixins: [Panoko.SyncState]
   globals: ['pane', 'query']
   
   getInitialState: ->
@@ -69,14 +16,17 @@ PaneController = React.createFactory React.createClass
     @setState pane:pane
 
   panes: [
-    ['messages', FacebookMessageView]
+    ['messages', Panoko.FacebookMessageView],
+#    ['search', Panoko.SearchQueryView]
     ]
     
   render: ->
+    console.log "QUERY: #{@state.query}"
     children = []
     for [pane, components...] in @panes
       for comp in components
         children.push comp
+          key: pane
           query: @state.query
           shown: pane == @state.pane
           sidebar: @props.sidebar
@@ -85,7 +35,7 @@ PaneController = React.createFactory React.createClass
     DOM.div children
 
 SidebarController = React.createFactory React.createClass
-  mixins: [SyncState]
+  mixins: [Panoko.SyncState]
   globals: ['pane', 'counts']
   
   getInitialState: ->
@@ -95,27 +45,29 @@ SidebarController = React.createFactory React.createClass
   changePane: (pane) ->
     @publish 'pane', pane
 
+  panes: ['messages', 'search']
   render: ->
-    panes = ['messages']
     DOM.ul {id:'active', class: "nav navbar-nav side-nav"},
-      panes.map (pane) =>
+      @panes.map (pane) =>
         DOM.li
-          class: (@state.pane == pane and 'selected' or ''),
-          [DOM.a
+          key: pane
+          className: (@state.pane == pane and 'selected' or ''),
+          DOM.a
             href: '#'+pane,
             onClick: (ev)=>@changePane(pane),
-            [pane,
+            [DOM.span(key:'name', pane),
             DOM.span
-              class:'badge'
+              key: 'count'
+              className:'badge'
               style: (not @state.counts[pane]? and {display: 'none'} or {})
               [@state.counts[pane]]]
-          ]
+          
       
         
 
 
 QueryInput = React.createFactory React.createClass
-  mixins: [SyncState]
+  mixins: [Panoko.SyncState]
   submit: (ev) ->
     ev.preventDefault()
     query = @refs.input.getDOMNode().value
@@ -123,14 +75,13 @@ QueryInput = React.createFactory React.createClass
     @publish 'query', query
     
   render: ->
-    DOM.form class: 'navbar-search', onSubmit: @submit, [
+    DOM.form class: 'navbar-search', onSubmit: @submit,
       DOM.input {
         type:'text',
         placeholder:'Search',
         class:'form-control',
         ref: 'input'
         },[]
-      ]
 
 
 Meteor.startup ->
@@ -140,4 +91,5 @@ Meteor.startup ->
     document.getElementById('search-form')
   React.render SidebarController(),
     document.getElementById('sidebar')
+
 
