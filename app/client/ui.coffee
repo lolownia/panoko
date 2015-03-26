@@ -1,25 +1,12 @@
 ELEM = React.createElement
 
-window.UI = {}
-
-QueryMixin =
-  componentWillMount: ->
-    if @props.query
-      @setState facts: @doQuery(@props.query)
-
-  componentWillReceiveProps: (props) ->
-    if props.query
-      @setState facts: @doQuery(props.query)
-
-  doQuery: (q) ->
-    q = @getQuery(q)
-    Facts.find q
-
 
 FacebookMessageView = React.createFactory React.createClass
-  mixins: [QueryMixin],
+  mixins: [QueryMixin, SyncState],
   getInitialState: ->
-    {facts: []}
+    {
+      facts: []
+    }
     
   getQuery: (query) ->
     num = parseInt(query)
@@ -48,6 +35,8 @@ FacebookMessageView = React.createFactory React.createClass
     return s
   
   render: ->
+    unless @props.shown
+      return DOM.div()
     DOM.div class: 'facebook-messages-pane',
       DOM.table {class:'table'}, [
         DOM.thead(
@@ -64,28 +53,74 @@ FacebookMessageView = React.createFactory React.createClass
 
 
 PaneController = React.createFactory React.createClass
+  mixins: [SyncState]
+  globals: ['pane', 'query']
+  
   getInitialState: ->
     {
       query: '',
-      kind: null
+      pane: 'messages'
     }
 
   newQuery: (query) ->
     @setState query: query
 
-  render: ->
-    if @state.kind == null
-      DOM.div {class: 'row'},
-        FacebookMessageView(query: @state.query)
+  show: (pane) ->
+    @setState pane:pane
 
+  panes: [
+    ['messages', FacebookMessageView]
+    ]
+    
+  render: ->
+    children = []
+    for [pane, components...] in @panes
+      for comp in components
+        children.push comp
+          query: @state.query
+          shown: pane == @state.pane
+          sidebar: @props.sidebar
+          pane: pane
+
+    DOM.div children
+
+SidebarController = React.createFactory React.createClass
+  mixins: [SyncState]
+  globals: ['pane', 'counts']
+  
+  getInitialState: ->
+    pane: 'messages'
+    counts: {}
+
+  changePane: (pane) ->
+    @publish 'pane', pane
+
+  render: ->
+    panes = ['messages']
+    DOM.ul {id:'active', class: "nav navbar-nav side-nav"},
+      panes.map (pane) =>
+        DOM.li
+          class: (@state.pane == pane and 'selected' or ''),
+          [DOM.a
+            href: '#'+pane,
+            onClick: (ev)=>@changePane(pane),
+            [pane,
+            DOM.span
+              class:'badge'
+              style: (not @state.counts[pane]? and {display: 'none'} or {})
+              [@state.counts[pane]]]
+          ]
+      
+        
 
 
 QueryInput = React.createFactory React.createClass
+  mixins: [SyncState]
   submit: (ev) ->
     ev.preventDefault()
     query = @refs.input.getDOMNode().value
     console.log "calling searcher with #{query}"
-    @props.searcher(query)
+    @publish 'query', query
     
   render: ->
     DOM.form class: 'navbar-search', onSubmit: @submit, [
@@ -99,7 +134,10 @@ QueryInput = React.createFactory React.createClass
 
 
 Meteor.startup ->
-  panes = React.render PaneController(), document.getElementById('panes')
-  search = QueryInput(searcher: panes.newQuery)
-  React.render search, document.getElementById('search-form')
+  React.render PaneController(),
+    document.getElementById('panes')
+  React.render QueryInput(),
+    document.getElementById('search-form')
+  React.render SidebarController(),
+    document.getElementById('sidebar')
 
