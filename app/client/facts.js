@@ -5,8 +5,22 @@
     window.Panoko = {};
   }
 
+  Panoko.PaneView = {
+    thead: function(headers) {
+      return DOM.thead({
+        key: 'thead'
+      }, DOM.tr([
+        _.map(headers, function(fn) {
+          return DOM.th({
+            key: fn
+          }, fn);
+        })
+      ]));
+    }
+  };
+
   Panoko.SearchQueryView = React.createFactory(React.createClass({
-    mixins: [Panoko.QueryMixin, Panoko.SyncState],
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
     getInitialState: function() {
       return {
         facts: []
@@ -19,7 +33,8 @@
       return {
         $and: [
           {
-            kind: 'query',
+            kind: 'query'
+          }, {
             query: qrx
           }
         ]
@@ -36,13 +51,7 @@
         DOM.table({
           "class": 'table'
         }, [
-          DOM.thead(DOM.tr([
-            _.map(['engine', 'query'], function(fn) {
-              return DOM.th({
-                key: fn
-              }, fn);
-            })
-          ])), DOM.tbody(this.state.facts.map(function(fact) {
+          this.thead(['engine', 'query', 'path']), DOM.tbody(this.state.facts.map(function(fact) {
             return DOM.tr({
               key: fact._id
             }, [
@@ -50,7 +59,67 @@
                 key: 'kind'
               }, "" + fact.kind), DOM.td({
                 key: 'query'
-              }, "" + fact.query)
+              }, "" + fact.query), DOM.td({
+                key: 'path'
+              }, "" + fact.path)
+            ]);
+          }))
+        ])
+      ]);
+    }
+  }));
+
+  Panoko.CredView = React.createFactory(React.createClass({
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
+    getInitialState: function() {
+      return {
+        facts: []
+      };
+    },
+    getQuery: function(query) {
+      var qrx;
+      qrx = RegExp(query);
+      return {
+        $and: [
+          {
+            kind: 'cred',
+            $or: [
+              {
+                username: qrx
+              }, {
+                email: qrx
+              }, {
+                password: qrx
+              }
+            ]
+          }
+        ]
+      };
+    },
+    render: function() {
+      var _this = this;
+      if (!this.props.shown) {
+        return DOM.div();
+      }
+      return DOM.div({
+        "class": 'cred-pane'
+      }, [
+        DOM.table({
+          "class": 'table'
+        }, [
+          this.thead(['provider', 'username', 'email', 'password']), DOM.tbody(this.state.facts.map(function(fact) {
+            return DOM.tr({
+              key: fact._id
+            }, [
+              DOM.td({
+                key: 'provider'
+              }, "" + fact.provider), DOM.td({
+                key: 'username'
+              }, "" + fact.username), DOM.td({
+                key: 'email'
+              }, "" + fact.email), DOM.td({
+                key: 'password'
+              }, "" + fact.password)
             ]);
           }))
         ])
@@ -59,7 +128,7 @@
   }));
 
   Panoko.FacebookMessageView = React.createFactory(React.createClass({
-    mixins: [Panoko.QueryMixin, Panoko.SyncState],
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
     getInitialState: function() {
       return {
         facts: []
@@ -116,15 +185,7 @@
       }, DOM.table({
         "class": 'table'
       }, [
-        DOM.thead({
-          key: 'thead'
-        }, DOM.tr([
-          _.map(['from', 'to', 'content'], function(fn) {
-            return DOM.th({
-              key: fn
-            }, fn);
-          })
-        ])), DOM.tbody({
+        this.thead(['from', 'to', 'content']), DOM.tbody({
           key: 'tbody'
         }, this.state.facts.map(function(fact) {
           return DOM.tr({

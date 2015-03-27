@@ -78,13 +78,18 @@
   Panoko.SyncState = {
     doSyncState: function(prop, state) {
       var ns;
-      console.log("eve ", prop, state);
+      console.log("sync event:", prop, state);
       if (__indexOf.call(this.globals, prop) >= 0) {
         ns = {};
-        ns[prop] = state;
+        if ((this.mergers != null) && prop in this.mergers) {
+          ns[prop] = this.mergers[prop](this.state[prop], state);
+        } else {
+          ns[prop] = state;
+        }
+        console.log('state', ns, "->", this.state);
         this.setState(ns);
+        return console.log('result state', this.state);
       }
-      return false;
     },
     componentDidMount: function() {
       var _this = this;

@@ -2,10 +2,16 @@
 window.Panoko = {} unless Panoko?
 
 
-
+Panoko.PaneView =
+  thead: (headers) ->    
+    DOM.thead(
+      key:'thead',
+      DOM.tr [
+        _.map headers, (fn)-> DOM.th(key:fn, fn)
+        ])
 
 Panoko.SearchQueryView = React.createFactory React.createClass
-  mixins: [Panoko.QueryMixin, Panoko.SyncState]
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
   getInitialState: ->
     {
       facts: []
@@ -14,31 +20,61 @@ Panoko.SearchQueryView = React.createFactory React.createClass
   getQuery: (query) ->
     num = parseInt(query)
     qrx = RegExp(query)
-    $and:
-      [
-        kind: 'query',
-        query: qrx
+    $and: [
+      {kind: 'query'},
+      {query: qrx}
       ]
-
+      
   render: ->
     unless @props.shown
       return DOM.div()
     DOM.div {class: 'query-pane'}, [
       DOM.table {class:'table'}, [
-        DOM.thead(
-          DOM.tr [
-            _.map ['engine','query'], (fn)-> DOM.th(key:fn, fn)
-            ]),
+        @thead(['engine','query', 'path']),
         DOM.tbody @state.facts.map (fact) =>
             DOM.tr key: fact._id, [
               DOM.td(key: 'kind', "#{fact.kind}"),
               DOM.td(key: 'query', "#{fact.query}"),
+              DOM.td(key: 'path', "#{fact.path}"),
               ]
         ]]
     
 
+Panoko.CredView = React.createFactory React.createClass
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
+  getInitialState: ->
+    {
+      facts: []
+    }
+  getQuery: (query) ->
+    qrx = RegExp query
+    $and: [
+      kind: 'cred',
+      $or: [
+        {username: qrx},
+        {email: qrx},
+        {password: qrx}
+        ]]
+        
+  render: ->
+    unless @props.shown
+      return DOM.div()
+    DOM.div {class: 'cred-pane'}, [
+      DOM.table {class:'table'}, [
+        @thead(['provider','username','email','password']),
+        DOM.tbody @state.facts.map (fact) =>
+            DOM.tr key: fact._id, [
+              DOM.td(key: 'provider', "#{fact.provider}"),
+              DOM.td(key: 'username', "#{fact.username}"),
+              DOM.td(key: 'email', "#{fact.email}"),
+              DOM.td(key: 'password', "#{fact.password}"),
+              ]
+        ]]
+    
+
+
 Panoko.FacebookMessageView = React.createFactory React.createClass
-  mixins: [Panoko.QueryMixin, Panoko.SyncState],
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
   getInitialState: ->
     {
       facts: []
@@ -76,11 +112,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
 
     DOM.div class: 'facebook-messages-pane',
       DOM.table {class:'table'}, [
-        DOM.thead(
-          key:'thead',
-          DOM.tr [
-            _.map ['from', 'to', 'content'], (fn)-> DOM.th(key:fn, fn)
-            ]),
+        @thead(['from', 'to', 'content']),
         DOM.tbody
           key:'tbody',
           @state.facts.map (fact) =>

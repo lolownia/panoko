@@ -55,12 +55,19 @@ Panoko.ObserveGlobalState =
 
 Panoko.SyncState =
   doSyncState: (prop, state) ->
-    console.log "eve ", prop, state
+    console.log "sync event:", prop, state
     if prop in @globals
       ns = {}
-      ns[prop] = state
+
+      if @mergers? and prop of @mergers
+        ns[prop] = @mergers[prop](@state[prop], state)
+      else
+        ns[prop] = state
+      
+      console.log 'state', ns, "->", @state
       @setState ns
-    false
+      console.log 'result state', @state
+
 
   componentDidMount: ->
     if @globals

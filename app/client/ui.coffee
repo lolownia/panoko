@@ -17,11 +17,11 @@ PaneController = React.createFactory React.createClass
 
   panes: [
     ['messages', Panoko.FacebookMessageView],
-#    ['search', Panoko.SearchQueryView]
+    ['search', Panoko.SearchQueryView]
+    ['cred', Panoko.CredView]
     ]
     
   render: ->
-    console.log "QUERY: #{@state.query}"
     children = []
     for [pane, components...] in @panes
       for comp in components
@@ -31,13 +31,17 @@ PaneController = React.createFactory React.createClass
           shown: pane == @state.pane
           sidebar: @props.sidebar
           pane: pane
-
     DOM.div children
 
 SidebarController = React.createFactory React.createClass
   mixins: [Panoko.SyncState]
   globals: ['pane', 'counts']
-  
+  mergers:
+    counts: (old, change) ->
+      _.extend(old or {}, change)
+      
+  panes: ['messages', 'search', 'cred']
+    
   getInitialState: ->
     pane: 'messages'
     counts: {}
@@ -45,7 +49,7 @@ SidebarController = React.createFactory React.createClass
   changePane: (pane) ->
     @publish 'pane', pane
 
-  panes: ['messages', 'search']
+
   render: ->
     DOM.ul {id:'active', class: "nav navbar-nav side-nav"},
       @panes.map (pane) =>
@@ -59,10 +63,8 @@ SidebarController = React.createFactory React.createClass
             DOM.span
               key: 'count'
               className:'badge'
-              style: (not @state.counts[pane]? and {display: 'none'} or {})
+              style: (not @state.counts[pane] and {display: 'none'} or {})
               [@state.counts[pane]]]
-          
-      
         
 
 
@@ -83,6 +85,17 @@ QueryInput = React.createFactory React.createClass
         ref: 'input'
         },[]
 
+Test = React.createFactory React.createClass
+  getInitialState: ->
+    {foo:{}}
+  render: ->
+    DOM.div {}, [
+      DOM.button({onClick: => @setState({foo: {one:1}})}, "one"),
+      DOM.button({onClick: => @setState({foo: {two:2}})}, "two"),
+      DOM.span "state keys are: #{Object.keys(@state.foo)}"
+      ]
+      
+
 
 Meteor.startup ->
   React.render PaneController(),
@@ -91,5 +104,4 @@ Meteor.startup ->
     document.getElementById('search-form')
   React.render SidebarController(),
     document.getElementById('sidebar')
-
-
+  #React.render Test(), document.getElementById('test')
