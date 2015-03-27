@@ -51,11 +51,21 @@ SidebarController = React.createFactory React.createClass
 
 
   render: ->
+    show_badge = (counts) =>
+      if counts?
+        return {}
+      return {display: 'none'}
+      
+    is_selected = (pane) =>
+      if @state.pane == pane
+        return 'selected'
+      return ''
+      
     DOM.ul {id:'active', class: "nav navbar-nav side-nav"},
       @panes.map (pane) =>
         DOM.li
           key: pane
-          className: (@state.pane == pane and 'selected' or ''),
+          className: is_selected(pane)
           DOM.a
             href: '#'+pane,
             onClick: (ev)=>@changePane(pane),
@@ -63,7 +73,7 @@ SidebarController = React.createFactory React.createClass
             DOM.span
               key: 'count'
               className:'badge'
-              style: (not @state.counts[pane] and {display: 'none'} or {})
+              style: show_badge(@state.counts[pane])
               [@state.counts[pane]]]
         
 

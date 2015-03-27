@@ -85,7 +85,7 @@
             kind: 'cred',
             $or: [
               {
-                username: qrx
+                id: qrx
               }, {
                 email: qrx
               }, {
@@ -115,7 +115,7 @@
                 key: 'provider'
               }, "" + fact.provider), DOM.td({
                 key: 'username'
-              }, "" + fact.username), DOM.td({
+              }, "" + fact.id), DOM.td({
                 key: 'email'
               }, "" + fact.email), DOM.td({
                 key: 'password'

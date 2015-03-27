@@ -51,7 +51,7 @@ Panoko.CredView = React.createFactory React.createClass
     $and: [
       kind: 'cred',
       $or: [
-        {username: qrx},
+        {id: qrx},
         {email: qrx},
         {password: qrx}
         ]]
@@ -65,7 +65,7 @@ Panoko.CredView = React.createFactory React.createClass
         DOM.tbody @state.facts.map (fact) =>
             DOM.tr key: fact._id, [
               DOM.td(key: 'provider', "#{fact.provider}"),
-              DOM.td(key: 'username', "#{fact.username}"),
+              DOM.td(key: 'username', "#{fact.id}"),
               DOM.td(key: 'email', "#{fact.email}"),
               DOM.td(key: 'password', "#{fact.password}"),
               ]

@@ -63,14 +63,29 @@
       return this.publish('pane', pane);
     },
     render: function() {
-      var _this = this;
+      var is_selected, show_badge,
+        _this = this;
+      show_badge = function(counts) {
+        if (counts != null) {
+          return {};
+        }
+        return {
+          display: 'none'
+        };
+      };
+      is_selected = function(pane) {
+        if (_this.state.pane === pane) {
+          return 'selected';
+        }
+        return '';
+      };
       return DOM.ul({
         id: 'active',
         "class": "nav navbar-nav side-nav"
       }, this.panes.map(function(pane) {
         return DOM.li({
           key: pane,
-          className: _this.state.pane === pane && 'selected' || ''
+          className: is_selected(pane)
         }, DOM.a({
           href: '#' + pane,
           onClick: function(ev) {
@@ -82,9 +97,7 @@
           }, pane), DOM.span({
             key: 'count',
             className: 'badge',
-            style: !_this.state.counts[pane] && {
-              display: 'none'
-            } || {}
+            style: show_badge(_this.state.counts[pane])
           }, [_this.state.counts[pane]])
         ]));
       }));
