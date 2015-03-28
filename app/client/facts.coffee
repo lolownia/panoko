@@ -3,12 +3,14 @@ window.Panoko = {} unless Panoko?
 
 
 Panoko.PaneView =
-  thead: (headers) ->    
+  thead: (headers) ->
+    clock = DOM.th({key:'time'}, DOM.i({class:'fa fa-clock-o'}, []))
     DOM.thead(
       key:'thead',
-      DOM.tr [
-        _.map headers, (fn)-> DOM.th(key:fn, fn)
-        ])
+      DOM.tr([clock].concat(
+        _.map headers, (fn)-> DOM.th(key:fn, fn)))
+      )
+
 
 Panoko.SearchQueryView = React.createFactory React.createClass
   mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
@@ -33,7 +35,8 @@ Panoko.SearchQueryView = React.createFactory React.createClass
         @thead(['engine','query', 'path']),
         DOM.tbody @state.facts.map (fact) =>
             DOM.tr key: fact._id, [
-              DOM.td(key: 'kind', "#{fact.kind}"),
+              Panoko.TimeField(fact: fact),
+              DOM.td(key: 'kind', "#{fact.provider}"),
               DOM.td(key: 'query', "#{fact.query}"),
               DOM.td(key: 'path', "#{fact.path}"),
               ]
@@ -64,6 +67,7 @@ Panoko.CredView = React.createFactory React.createClass
         @thead(['provider','username','email','password']),
         DOM.tbody @state.facts.map (fact) =>
             DOM.tr key: fact._id, [
+              Panoko.TimeField(fact: fact),
               DOM.td(key: 'provider', "#{fact.provider}"),
               DOM.td(key: 'username', "#{fact.id}"),
               DOM.td(key: 'email', "#{fact.email}"),
@@ -95,6 +99,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
       {frm_name: qrx},
       {to_name: qrx},
       ]
+      
     $and:
       [
         kind: 'message',
@@ -117,6 +122,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
           key:'tbody',
           @state.facts.map (fact) =>
             DOM.tr key: fact._id, [
+              Panoko.TimeField(fact: fact),
               DOM.td(key: 'from', "#{@na(fact.frm)} #{@na(fact.frm_name)}"),
               DOM.td(key: 'to', "#{@na(fact.to)}, #{@na(fact.to_name)}"),
               DOM.td(key: 'content', "#{fact.content}")

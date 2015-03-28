@@ -83,7 +83,6 @@ QueryInput = React.createFactory React.createClass
   submit: (ev) ->
     ev.preventDefault()
     query = @refs.input.getDOMNode().value
-    console.log "calling searcher with #{query}"
     @publish 'query', query
     
   render: ->

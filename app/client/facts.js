@@ -7,15 +7,19 @@
 
   Panoko.PaneView = {
     thead: function(headers) {
+      var clock;
+      clock = DOM.th({
+        key: 'time'
+      }, DOM.i({
+        "class": 'fa fa-clock-o'
+      }, []));
       return DOM.thead({
         key: 'thead'
-      }, DOM.tr([
-        _.map(headers, function(fn) {
-          return DOM.th({
-            key: fn
-          }, fn);
-        })
-      ]));
+      }, DOM.tr([clock].concat(_.map(headers, function(fn) {
+        return DOM.th({
+          key: fn
+        }, fn);
+      }))));
     }
   };
 
@@ -55,9 +59,11 @@
             return DOM.tr({
               key: fact._id
             }, [
-              DOM.td({
+              Panoko.TimeField({
+                fact: fact
+              }), DOM.td({
                 key: 'kind'
-              }, "" + fact.kind), DOM.td({
+              }, "" + fact.provider), DOM.td({
                 key: 'query'
               }, "" + fact.query), DOM.td({
                 key: 'path'
@@ -111,7 +117,9 @@
             return DOM.tr({
               key: fact._id
             }, [
-              DOM.td({
+              Panoko.TimeField({
+                fact: fact
+              }), DOM.td({
                 key: 'provider'
               }, "" + fact.provider), DOM.td({
                 key: 'username'
@@ -191,7 +199,9 @@
           return DOM.tr({
             key: fact._id
           }, [
-            DOM.td({
+            Panoko.TimeField({
+              fact: fact
+            }), DOM.td({
               key: 'from'
             }, "" + (_this.na(fact.frm)) + " " + (_this.na(fact.frm_name))), DOM.td({
               key: 'to'

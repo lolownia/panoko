@@ -110,7 +110,6 @@
       var query;
       ev.preventDefault();
       query = this.refs.input.getDOMNode().value;
-      console.log("calling searcher with " + query);
       return this.publish('query', query);
     },
     render: function() {

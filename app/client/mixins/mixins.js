@@ -19,11 +19,9 @@
     },
     queryFacts: function(query) {
       var result, v;
-      console.log("query for facts: " + query);
       result = Facts.find(this.getQuery(query));
       v = {};
       v[this.props.pane] = result.count();
-      console.log("...and got counts: " + (result.count()));
       this.publish('counts', v);
       return this.setState({
         facts: result
@@ -40,9 +38,8 @@
         return;
       }
       this.observer = new ObjectObserver(window.globalState);
-      this.observer.open(function(added, removed, changed, oldVal) {
+      return this.observer.open(function(added, removed, changed, oldVal) {
         var news, propname, _i, _len, _ref;
-        console.log(added, removed, changed);
         news = {};
         _ref = _this.globals;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -61,13 +58,11 @@
           return _this.setState(news);
         }
       });
-      return console.log("observe..", this.observer, this.getDOMNode());
     },
     componentWillUnmount: function() {
       if (this.globals == null) {
         return;
       }
-      console.log("un-observe..", this.getDOMNode());
       return this.observer.close();
     },
     updateGlobal: function(prop, modificator) {
@@ -78,7 +73,6 @@
   Panoko.SyncState = {
     doSyncState: function(prop, state) {
       var ns;
-      console.log("sync event:", prop, state);
       if (__indexOf.call(this.globals, prop) >= 0) {
         ns = {};
         if ((this.mergers != null) && prop in this.mergers) {
@@ -86,9 +80,7 @@
         } else {
           ns[prop] = state;
         }
-        console.log('state', ns, "->", this.state);
-        this.setState(ns);
-        return console.log('result state', this.state);
+        return this.setState(ns);
       }
     },
     componentDidMount: function() {

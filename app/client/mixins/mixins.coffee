@@ -11,11 +11,11 @@ Panoko.QueryMixin =
       @queryFacts(props.query)
 
   queryFacts: (query) ->
-    console.log "query for facts: #{query}"
+    #console.log "query for facts: #{query}"
     result = Facts.find(@getQuery(query))
     v = {}
     v[@props.pane] = result.count()
-    console.log "...and got counts: #{result.count()}"
+    #console.log "...and got counts: #{result.count()}"
 
     @publish 'counts', v
     @setState facts: result
@@ -30,7 +30,7 @@ Panoko.ObserveGlobalState =
 
     @observer = new ObjectObserver(window.globalState)
     @observer.open (added, removed, changed, oldVal) =>
-      console.log added, removed, changed
+      #console.log added, removed, changed
       news = {}
       for propname in @globals
         if propname of added
@@ -41,12 +41,12 @@ Panoko.ObserveGlobalState =
           ns[propname] = null
       unless news == {}
         @setState(news)
-    console.log "observe..", @observer, @getDOMNode()
+    #console.log "observe..", @observer, @getDOMNode()
 
   componentWillUnmount: ->
     unless @globals?
       return
-    console.log "un-observe..", @getDOMNode()
+    #console.log "un-observe..", @getDOMNode()
     @observer.close()
 
   updateGlobal: (prop, modificator) ->
@@ -55,7 +55,7 @@ Panoko.ObserveGlobalState =
 
 Panoko.SyncState =
   doSyncState: (prop, state) ->
-    console.log "sync event:", prop, state
+    #console.log "sync event:", prop, state
     if prop in @globals
       ns = {}
 
@@ -64,9 +64,9 @@ Panoko.SyncState =
       else
         ns[prop] = state
       
-      console.log 'state', ns, "->", @state
+      #console.log 'state', ns, "->", @state
       @setState ns
-      console.log 'result state', @state
+      #console.log 'result state', @state
 
 
   componentDidMount: ->
