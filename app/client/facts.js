@@ -27,35 +27,37 @@
       };
     },
     render: function() {
-      var _this = this;
+      var more_button, table,
+        _this = this;
       if (!this.props.shown) {
         return DOM.div();
       }
+      more_button = this.pagination();
+      table = DOM.table({
+        key: 'facts',
+        "class": 'table'
+      }, [
+        this.thead(['engine', 'query', 'path']), DOM.tbody(this.state.facts.map(function(fact) {
+          return DOM.tr({
+            key: fact._id
+          }, [
+            Panoko.TimeField({
+              fact: fact
+            }), Panoko.IPField({
+              fact: fact
+            }), DOM.td({
+              key: 'kind'
+            }, "" + fact.provider), DOM.td({
+              key: 'query'
+            }, "" + fact.query), DOM.td({
+              key: 'path'
+            }, "" + fact.path)
+          ]);
+        }))
+      ]);
       return DOM.div({
         "class": 'query-pane'
-      }, [
-        this.pagination(), DOM.table({
-          "class": 'table'
-        }, [
-          this.thead(['engine', 'query', 'path']), DOM.tbody(this.state.facts.map(function(fact) {
-            return DOM.tr({
-              key: fact._id
-            }, [
-              Panoko.TimeField({
-                fact: fact
-              }), Panoko.IPField({
-                fact: fact
-              }), DOM.td({
-                key: 'kind'
-              }, "" + fact.provider), DOM.td({
-                key: 'query'
-              }, "" + fact.query), DOM.td({
-                key: 'path'
-              }, "" + fact.path)
-            ]);
-          }))
-        ])
-      ]);
+      }, [table, more_button]);
     }
   }));
 
@@ -88,37 +90,38 @@
       };
     },
     render: function() {
-      var _this = this;
+      var more_button, table,
+        _this = this;
       if (!this.props.shown) {
         return DOM.div();
       }
+      more_button = this.pagination();
+      table = DOM.table({
+        "class": 'table'
+      }, [
+        this.thead(['provider', 'username', 'email', 'password']), DOM.tbody(this.state.facts.map(function(fact) {
+          return DOM.tr({
+            key: fact._id
+          }, [
+            Panoko.TimeField({
+              fact: fact
+            }), Panoko.IPField({
+              fact: fact
+            }), DOM.td({
+              key: 'provider'
+            }, "" + fact.provider), DOM.td({
+              key: 'username'
+            }, fact.id || '(no data)'), DOM.td({
+              key: 'email'
+            }, fact.email || '(no data)'), DOM.td({
+              key: 'password'
+            }, fact.password || '(no data)')
+          ]);
+        }))
+      ]);
       return DOM.div({
         "class": 'cred-pane'
-      }, [
-        this.pagination(), DOM.table({
-          "class": 'table'
-        }, [
-          this.thead(['provider', 'username', 'email', 'password']), DOM.tbody(this.state.facts.map(function(fact) {
-            return DOM.tr({
-              key: fact._id
-            }, [
-              Panoko.TimeField({
-                fact: fact
-              }), Panoko.IPField({
-                fact: fact
-              }), DOM.td({
-                key: 'provider'
-              }, "" + fact.provider), DOM.td({
-                key: 'username'
-              }, fact.id || '(no data)'), DOM.td({
-                key: 'email'
-              }, fact.email || '(no data)'), DOM.td({
-                key: 'password'
-              }, fact.password || '(no data)')
-            ]);
-          }))
-        ])
-      ]);
+      }, [table, more_button]);
     }
   }));
 
@@ -181,13 +184,13 @@
       });
     },
     render: function() {
-      var _this = this;
+      var more_button, table,
+        _this = this;
       if (!this.props.shown) {
         return DOM.div();
       }
-      return DOM.div({
-        "class": 'facebook-messages-pane'
-      }, DOM.table({
+      more_button = this.pagination();
+      table = DOM.table({
         "class": 'table'
       }, [
         this.thead(['from', 'to', 'content']), DOM.tbody({
@@ -208,7 +211,10 @@
             }, "" + fact.content)
           ]);
         }))
-      ]));
+      ]);
+      return DOM.div({
+        "class": 'facebook-messages-pane'
+      }, [table, more_button]);
     }
   }));
 
@@ -315,13 +321,13 @@
       return q;
     },
     render: function() {
-      var _this = this;
+      var more_button, table,
+        _this = this;
       if (!this.props.shown) {
         return DOM.div();
       }
-      return DOM.div({
-        "class": 'mail-pane'
-      }, DOM.table({
+      more_button = this.pagination();
+      table = DOM.table({
         "class": 'table'
       }, [
         this.thead(['provider', 'reply', 'from', 'to', 'subject', 'content']), DOM.tbody({
@@ -353,7 +359,10 @@
             }, null)
           ]);
         }))
-      ]));
+      ]);
+      return DOM.div({
+        "class": 'mail-pane'
+      }, [table, more_button]);
     }
   }));
 

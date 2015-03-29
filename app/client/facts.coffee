@@ -1,9 +1,6 @@
 
 window.Panoko = {} unless Panoko?
 
-
-
-
 Panoko.SearchQueryView = React.createFactory React.createClass
   mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
   getInitialState: ->
@@ -22,19 +19,19 @@ Panoko.SearchQueryView = React.createFactory React.createClass
   render: ->
     unless @props.shown
       return DOM.div()
-    DOM.div {class: 'query-pane'}, [
-      @pagination(),
-      DOM.table {class:'table'}, [
-        @thead(['engine','query', 'path']),
-        DOM.tbody @state.facts.map (fact) =>
-            DOM.tr key: fact._id, [
-              Panoko.TimeField(fact: fact),
-              Panoko.IPField(fact: fact),
-              DOM.td(key: 'kind', "#{fact.provider}"),
-              DOM.td(key: 'query', "#{fact.query}"),
-              DOM.td(key: 'path', "#{fact.path}"),
-              ]
-        ]]
+    more_button = @pagination()
+    table = DOM.table {key: 'facts', class:'table'}, [
+      @thead(['engine','query', 'path']),
+      DOM.tbody @state.facts.map (fact) =>
+          DOM.tr key: fact._id, [
+            Panoko.TimeField(fact: fact),
+            Panoko.IPField(fact: fact),
+            DOM.td(key: 'kind', "#{fact.provider}"),
+            DOM.td(key: 'query', "#{fact.query}"),
+            DOM.td(key: 'path', "#{fact.path}"),
+            ]
+      ]
+    DOM.div {class: 'query-pane'}, [table, more_button]
     
 
 Panoko.CredView = React.createFactory React.createClass
@@ -58,20 +55,20 @@ Panoko.CredView = React.createFactory React.createClass
   render: ->
     unless @props.shown
       return DOM.div()
-    DOM.div {class: 'cred-pane'}, [
-      @pagination(),
-      DOM.table {class:'table'}, [
-        @thead(['provider','username','email','password']),
-        DOM.tbody @state.facts.map (fact) =>
-            DOM.tr key: fact._id, [
-              Panoko.TimeField(fact: fact),
-              Panoko.IPField(fact: fact),
-              DOM.td(key: 'provider', "#{fact.provider}"),
-              DOM.td(key: 'username', (fact.id or '(no data)')),
-              DOM.td(key: 'email', (fact.email or '(no data)')),
-              DOM.td(key: 'password', (fact.password or '(no data)')),
-              ]
-        ]]
+    more_button = @pagination()
+    table = DOM.table {class:'table'}, [
+      @thead(['provider','username','email','password']),
+      DOM.tbody @state.facts.map (fact) =>
+          DOM.tr key: fact._id, [
+            Panoko.TimeField(fact: fact),
+            Panoko.IPField(fact: fact),
+            DOM.td(key: 'provider', "#{fact.provider}"),
+            DOM.td(key: 'username', (fact.id or '(no data)')),
+            DOM.td(key: 'email', (fact.email or '(no data)')),
+            DOM.td(key: 'password', (fact.password or '(no data)')),
+            ]
+      ]
+    DOM.div {class: 'cred-pane'}, [table, more_button]
     
 
 
@@ -119,20 +116,22 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
     unless @props.shown
       return DOM.div()
 
-    DOM.div class: 'facebook-messages-pane',
-      DOM.table {class:'table'}, [
-        @thead(['from', 'to', 'content']),
-        DOM.tbody
-          key:'tbody',
-          @state.facts.map (fact) =>
-            DOM.tr key: fact._id, [
-              Panoko.TimeField(fact: fact),
-              Panoko.IPField(fact: fact),
-              Panoko.FacebookUsers(fbids:[fact.frm], names:fact.frm_name),
-              @just_recipients(fact.frm, fact.frm_name, fact.to, fact.to_name),
-              DOM.td(key: 'content', "#{fact.content}")
-              ]
-        ]
+    more_button = @pagination()
+    table = DOM.table {class:'table'}, [
+      @thead(['from', 'to', 'content']),
+      DOM.tbody
+        key:'tbody',
+        @state.facts.map (fact) =>
+          DOM.tr key: fact._id, [
+            Panoko.TimeField(fact: fact),
+            Panoko.IPField(fact: fact),
+            Panoko.FacebookUsers(fbids:[fact.frm], names:fact.frm_name),
+            @just_recipients(fact.frm, fact.frm_name, fact.to, fact.to_name),
+            DOM.td(key: 'content', "#{fact.content}")
+            ]
+      ]
+    DOM.div class: 'facebook-messages-pane', [table, more_button]
+
 
 
 Panoko.UploadView = React.createFactory React.createClass
@@ -206,9 +205,9 @@ Panoko.EmailView = React.createFactory React.createClass
   render: ->
     unless @props.shown
       return DOM.div()
-    
-    DOM.div class: 'mail-pane',
-      DOM.table {class:'table'}, [
+      
+    more_button = @pagination()
+    table = DOM.table {class:'table'}, [
         @thead(['provider', 'reply' , 'from', 'to', 'subject', 'content']),
         DOM.tbody
           key:'tbody',
@@ -225,5 +224,6 @@ Panoko.EmailView = React.createFactory React.createClass
                 dangerouslySetInnerHTML: @raw_html("#{fact.to_name or ''} #{to_emails}")}, null),
               DOM.td(key:'subject', (fact.subject or '(none)')),
               DOM.td({key:'content', dangerouslySetInnerHTML: @raw_html(fact.content)}, null)
-              ]
-          ]
+              ]]
+
+    DOM.div class: 'mail-pane', [table, more_button]

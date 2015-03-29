@@ -2,31 +2,33 @@ window.Panoko = {} unless Panoko?
 
   
 Panoko.QueryMixin =
-  factsPerPage: 10
-  getPage: ->
-    if 'page' of @state
-      return @state.page
-    return 0
+  factsPerPage: 50
+  getLimit: ->
+    if 'limit' of @state
+      return @state.limit
+    return @factsPerPage
+
+  getMoreFacts: (this_many) ->
+    @queryFacts @props.query, this_many
 
   pagination: ->
-    if @state.facts.count?
-      count = @state.facts.count()
-      pages = Math.ceil(count / @factsPerPage)
-    else
-      pages = 0
-            
-    current = @getPage()
-    DOM.nav DOM.ul
-        class: 'pagination',
-        _.map [0...pages], (p) =>
-          DOM.li
-            key: "#{p}"
-            class: (p==current and 'active' or ''),
-            DOM.a
-              href: '#'
-              onClick: => @setState {page: p},
-              "#{p+1}"
-       
+    unless @state.facts.count?
+      return ''
+    count = @state.facts.count()
+    if count == @getLimit()
+      return DOM.div
+        key: 'pagination'
+        class: 'btn-group'
+        role: 'group',
+        DOM.a
+          onClick: (ev) =>
+            ev.preventDefault()
+            @getMoreFacts(@getLimit() + @factsPerPage)
+          href: '#'
+          class: 'btn btn-default',
+          'Load more...'
+    return ''
+             
   componentWillMount: ->
     if @props.query
       @queryFacts(@props.query)
@@ -35,16 +37,19 @@ Panoko.QueryMixin =
     if props.query
       @queryFacts(props.query)
 
-  queryFacts: (query) ->
-    #console.log "query for facts: #{query}"
+  queryFacts: (query, limit) ->
+    if not limit?
+      limit = @getLimit()
+      
     result = Facts.find(@getQuery(query),
-      {sort: {timestamp_start: -1}})
+      {sort: {timestamp_start: -1}, limit: limit})
+      
     v = {}
     v[@props.pane] = result.count()
-    #console.log "...and got counts: #{result.count()}"
+    console.log "...and got counts: #{result.count()}"
 
     @publish 'counts', v
-    @setState facts: result
+    @setState facts: result, limit: limit
 
   whereabouts: (query) ->
     if query.match(/^\d+[.]\d+[.]\d+[.]\d+$/)

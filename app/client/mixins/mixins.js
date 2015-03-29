@@ -7,42 +7,38 @@
   }
 
   Panoko.QueryMixin = {
-    factsPerPage: 10,
-    getPage: function() {
-      if ('page' in this.state) {
-        return this.state.page;
+    factsPerPage: 50,
+    getLimit: function() {
+      if ('limit' in this.state) {
+        return this.state.limit;
       }
-      return 0;
+      return this.factsPerPage;
+    },
+    getMoreFacts: function(this_many) {
+      return this.queryFacts(this.props.query, this_many);
     },
     pagination: function() {
-      var count, current, pages, _i, _results,
+      var count,
         _this = this;
-      if (this.state.facts.count != null) {
-        count = this.state.facts.count();
-        pages = Math.ceil(count / this.factsPerPage);
-      } else {
-        pages = 0;
+      if (this.state.facts.count == null) {
+        return '';
       }
-      current = this.getPage();
-      return DOM.nav(DOM.ul({
-        "class": 'pagination'
-      }, _.map((function() {
-        _results = [];
-        for (var _i = 0; 0 <= pages ? _i < pages : _i > pages; 0 <= pages ? _i++ : _i--){ _results.push(_i); }
-        return _results;
-      }).apply(this), function(p) {
-        return DOM.li({
-          key: "" + p,
-          "class": p === current && 'active' || ''
+      count = this.state.facts.count();
+      if (count === this.getLimit()) {
+        return DOM.div({
+          key: 'pagination',
+          "class": 'btn-group',
+          role: 'group'
         }, DOM.a({
+          onClick: function(ev) {
+            ev.preventDefault();
+            return _this.getMoreFacts(_this.getLimit() + _this.factsPerPage);
+          },
           href: '#',
-          onClick: function() {
-            return _this.setState({
-              page: p
-            });
-          }
-        }, "" + (p + 1)));
-      })));
+          "class": 'btn btn-default'
+        }, 'Load more...'));
+      }
+      return '';
     },
     componentWillMount: function() {
       if (this.props.query) {
@@ -54,18 +50,24 @@
         return this.queryFacts(props.query);
       }
     },
-    queryFacts: function(query) {
+    queryFacts: function(query, limit) {
       var result, v;
+      if (!(limit != null)) {
+        limit = this.getLimit();
+      }
       result = Facts.find(this.getQuery(query), {
         sort: {
           timestamp_start: -1
-        }
+        },
+        limit: limit
       });
       v = {};
       v[this.props.pane] = result.count();
+      console.log("...and got counts: " + (result.count()));
       this.publish('counts', v);
       return this.setState({
-        facts: result
+        facts: result,
+        limit: limit
       });
     },
     whereabouts: function(query) {
