@@ -96,8 +96,8 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
       
     $and:
       [
-        kind: 'message',
-        $or: or_stmt
+        {kind: 'message'},
+        {$or: or_stmt}
       ]
 
   na: (s) ->
@@ -141,8 +141,8 @@ Panoko.UploadView = React.createFactory React.createClass
     qrx = RegExp query
     $and:
       [
-        kind: 'upload',
-        filename: qrx
+        {kind: 'upload'},
+        {filename: qrx}
       ]
 
   render: ->
@@ -162,3 +162,60 @@ Panoko.UploadView = React.createFactory React.createClass
               DOM.td({key: 'type'}, fact.mime),
               DOM.td({key: 'content'}, fact.content),
               ]]
+
+
+Panoko.EmailView = React.createFactory React.createClass
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView, Panoko.RunSearch]
+  getInitialState: ->
+    {
+      facts: []
+    }
+    
+  getQuery: (query) ->
+    qrx = RegExp query
+
+    or_stmt = []
+    or_stmt = or_stmt.concat [
+      {id: query},
+      {reply: query},
+      {content: qrx},
+      {subject: qrx},
+      {to: qrx},
+      {frm: qrx},
+      {frm_name: qrx},
+      {to_name: qrx},
+      ]
+      
+    q = $and:
+      [
+        {kind: 'mail'},
+        {$or: or_stmt}
+      ]
+    console.log "Query:", q
+    q
+
+
+  render: ->
+    unless @props.shown
+      return DOM.div()
+    
+    DOM.div class: 'mail-pane',
+      DOM.table {class:'table'}, [
+        @thead(['provider', 'reply' , 'from', 'to', 'subject', 'content']),
+        DOM.tbody
+          key:'tbody',
+          @state.facts.map (fact) =>
+            to_emails = (fact.to or []).join(',')
+            DOM.tr key: fact._id, [
+              Panoko.TimeField(fact: fact),
+              Panoko.IPField(fact: fact),
+              DOM.td(key:'provider', (fact.provider)),
+              DOM.td({key:'reply'}, @searchableData(fact.reply)),
+              DOM.td(key:'frm', "#{fact.frm_name or '?'} <#{fact.frm}>"),
+              DOM.td({
+                key:'to',
+                dangerouslySetInnerHTML: @raw_html("#{fact.to_name or '?'} #{to_emails}")}, null),
+              DOM.td(key:'subject', (fact.subject or '(none)')),
+              DOM.td({key:'content', dangerouslySetInnerHTML: @raw_html(fact.content)}, null)
+              ]
+          ]

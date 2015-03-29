@@ -81,3 +81,20 @@ Panoko.SyncState =
     
   publish: (prop, obj) ->
     $(document).trigger "syncstate.#{prop}", obj
+
+Panoko.RunSearch =
+  runSearch: (query) ->
+    frm = $(".navbar-search")
+    frm.find('input[type=text]').val(query)
+    #frm.submit() # why this doesnt work?
+
+
+  searchableData: (data) ->
+    if not data
+      return ''
+    DOM.a
+      href: "#"
+      onClick: ((ev) =>
+        ev.preventDefault()
+        @runSearch(data)),
+      "#{data}"

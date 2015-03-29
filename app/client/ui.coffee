@@ -17,9 +17,10 @@ PaneController = React.createFactory React.createClass
 
   panes: [
     ['messages', Panoko.FacebookMessageView],
-    ['search', Panoko.SearchQueryView]
-    ['cred', Panoko.CredView]
-    ['upload', Panoko.UploadView]
+    ['search', Panoko.SearchQueryView],
+    ['cred', Panoko.CredView],
+    ['upload', Panoko.UploadView],
+    ['email', Panoko.EmailView]
     ]
     
   render: ->
@@ -41,7 +42,7 @@ SidebarController = React.createFactory React.createClass
     counts: (old, change) ->
       _.extend(old or {}, change)
       
-  panes: ['messages', 'search', 'cred', 'upload']
+  panes: ['messages', 'email', 'search', 'cred', 'upload']
     
   getInitialState: ->
     pane: 'messages'

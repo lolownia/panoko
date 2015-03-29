@@ -6,6 +6,11 @@
   }
 
   Panoko.PaneView = {
+    raw_html: function(html) {
+      return {
+        __html: html
+      };
+    },
     thead: function(headers) {
       var clock, ip;
       clock = DOM.th({

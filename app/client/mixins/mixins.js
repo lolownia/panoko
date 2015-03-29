@@ -112,4 +112,25 @@
     }
   };
 
+  Panoko.RunSearch = {
+    runSearch: function(query) {
+      var frm;
+      frm = $(".navbar-search");
+      return frm.find('input[type=text]').val(query);
+    },
+    searchableData: function(data) {
+      var _this = this;
+      if (!data) {
+        return '';
+      }
+      return DOM.a({
+        href: "#",
+        onClick: (function(ev) {
+          ev.preventDefault();
+          return _this.runSearch(data);
+        })
+      }, "" + data);
+    }
+  };
+
 }).call(this);

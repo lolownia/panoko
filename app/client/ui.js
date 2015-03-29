@@ -22,7 +22,7 @@
         pane: pane
       });
     },
-    panes: [['messages', Panoko.FacebookMessageView], ['search', Panoko.SearchQueryView], ['cred', Panoko.CredView], ['upload', Panoko.UploadView]],
+    panes: [['messages', Panoko.FacebookMessageView], ['search', Panoko.SearchQueryView], ['cred', Panoko.CredView], ['upload', Panoko.UploadView], ['email', Panoko.EmailView]],
     render: function() {
       var children, comp, components, pane, _i, _j, _len, _len1, _ref, _ref1;
       children = [];
@@ -52,7 +52,7 @@
         return _.extend(old || {}, change);
       }
     },
-    panes: ['messages', 'search', 'cred', 'upload'],
+    panes: ['messages', 'email', 'search', 'cred', 'upload'],
     getInitialState: function() {
       return {
         pane: 'messages',

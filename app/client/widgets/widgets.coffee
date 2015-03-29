@@ -2,6 +2,9 @@
 window.Panoko = {} unless Panoko?
 
 Panoko.PaneView =
+  raw_html: (html) ->
+    {__html: html}
+
   thead: (headers) ->
     clock = DOM.th({key:'time'}, DOM.i({class:'fa fa-clock-o'}, []))
     ip = DOM.th({key:'ip'}, DOM.i({class:'fa fa-sitemap'}, []))

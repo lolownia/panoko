@@ -154,7 +154,8 @@
       return {
         $and: [
           {
-            kind: 'message',
+            kind: 'message'
+          }, {
             $or: or_stmt
           }
         ]
@@ -223,7 +224,8 @@
       return {
         $and: [
           {
-            kind: 'upload',
+            kind: 'upload'
+          }, {
             filename: qrx
           }
         ]
@@ -258,6 +260,91 @@
             }, fact.mime), DOM.td({
               key: 'content'
             }, fact.content)
+          ]);
+        }))
+      ]));
+    }
+  }));
+
+  Panoko.EmailView = React.createFactory(React.createClass({
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView, Panoko.RunSearch],
+    getInitialState: function() {
+      return {
+        facts: []
+      };
+    },
+    getQuery: function(query) {
+      var or_stmt, q, qrx;
+      qrx = RegExp(query);
+      or_stmt = [];
+      or_stmt = or_stmt.concat([
+        {
+          id: query
+        }, {
+          reply: query
+        }, {
+          content: qrx
+        }, {
+          subject: qrx
+        }, {
+          to: qrx
+        }, {
+          frm: qrx
+        }, {
+          frm_name: qrx
+        }, {
+          to_name: qrx
+        }
+      ]);
+      q = {
+        $and: [
+          {
+            kind: 'mail'
+          }, {
+            $or: or_stmt
+          }
+        ]
+      };
+      console.log("Query:", q);
+      return q;
+    },
+    render: function() {
+      var _this = this;
+      if (!this.props.shown) {
+        return DOM.div();
+      }
+      return DOM.div({
+        "class": 'mail-pane'
+      }, DOM.table({
+        "class": 'table'
+      }, [
+        this.thead(['provider', 'reply', 'from', 'to', 'subject', 'content']), DOM.tbody({
+          key: 'tbody'
+        }, this.state.facts.map(function(fact) {
+          var to_emails;
+          to_emails = (fact.to || []).join(',');
+          return DOM.tr({
+            key: fact._id
+          }, [
+            Panoko.TimeField({
+              fact: fact
+            }), Panoko.IPField({
+              fact: fact
+            }), DOM.td({
+              key: 'provider'
+            }, fact.provider), DOM.td({
+              key: 'reply'
+            }, _this.searchableData(fact.reply)), DOM.td({
+              key: 'frm'
+            }, "" + (fact.frm_name || '?') + " <" + fact.frm + ">"), DOM.td({
+              key: 'to',
+              dangerouslySetInnerHTML: _this.raw_html("" + (fact.to_name || '?') + " " + to_emails)
+            }, null), DOM.td({
+              key: 'subject'
+            }, fact.subject || '(none)'), DOM.td({
+              key: 'content',
+              dangerouslySetInnerHTML: _this.raw_html(fact.content)
+            }, null)
           ]);
         }))
       ]));
