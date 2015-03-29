@@ -7,6 +7,43 @@
   }
 
   Panoko.QueryMixin = {
+    factsPerPage: 10,
+    getPage: function() {
+      if ('page' in this.state) {
+        return this.state.page;
+      }
+      return 0;
+    },
+    pagination: function() {
+      var count, current, pages, _i, _results,
+        _this = this;
+      if (this.state.facts.count != null) {
+        count = this.state.facts.count();
+        pages = Math.ceil(count / this.factsPerPage);
+      } else {
+        pages = 0;
+      }
+      current = this.getPage();
+      return DOM.nav(DOM.ul({
+        "class": 'pagination'
+      }, _.map((function() {
+        _results = [];
+        for (var _i = 0; 0 <= pages ? _i < pages : _i > pages; 0 <= pages ? _i++ : _i--){ _results.push(_i); }
+        return _results;
+      }).apply(this), function(p) {
+        return DOM.li({
+          key: "" + p,
+          "class": p === current && 'active' || ''
+        }, DOM.a({
+          href: '#',
+          onClick: function() {
+            return _this.setState({
+              page: p
+            });
+          }
+        }, "" + (p + 1)));
+      })));
+    },
     componentWillMount: function() {
       if (this.props.query) {
         return this.queryFacts(this.props.query);

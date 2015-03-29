@@ -34,7 +34,7 @@
       return DOM.div({
         "class": 'query-pane'
       }, [
-        DOM.table({
+        this.pagination(), DOM.table({
           "class": 'table'
         }, [
           this.thead(['engine', 'query', 'path']), DOM.tbody(this.state.facts.map(function(fact) {
@@ -95,7 +95,7 @@
       return DOM.div({
         "class": 'cred-pane'
       }, [
-        DOM.table({
+        this.pagination(), DOM.table({
           "class": 'table'
         }, [
           this.thead(['provider', 'username', 'email', 'password']), DOM.tbody(this.state.facts.map(function(fact) {
@@ -344,7 +344,7 @@
               key: 'frm'
             }, "" + (fact.frm_name || '?') + " <" + fact.frm + ">"), DOM.td({
               key: 'to',
-              dangerouslySetInnerHTML: _this.raw_html("" + (fact.to_name || '?') + " " + to_emails)
+              dangerouslySetInnerHTML: _this.raw_html("" + (fact.to_name || '') + " " + to_emails)
             }, null), DOM.td({
               key: 'subject'
             }, fact.subject || '(none)'), DOM.td({

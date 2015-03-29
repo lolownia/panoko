@@ -2,6 +2,31 @@ window.Panoko = {} unless Panoko?
 
   
 Panoko.QueryMixin =
+  factsPerPage: 10
+  getPage: ->
+    if 'page' of @state
+      return @state.page
+    return 0
+
+  pagination: ->
+    if @state.facts.count?
+      count = @state.facts.count()
+      pages = Math.ceil(count / @factsPerPage)
+    else
+      pages = 0
+            
+    current = @getPage()
+    DOM.nav DOM.ul
+        class: 'pagination',
+        _.map [0...pages], (p) =>
+          DOM.li
+            key: "#{p}"
+            class: (p==current and 'active' or ''),
+            DOM.a
+              href: '#'
+              onClick: => @setState {page: p},
+              "#{p+1}"
+       
   componentWillMount: ->
     if @props.query
       @queryFacts(@props.query)
@@ -12,7 +37,8 @@ Panoko.QueryMixin =
 
   queryFacts: (query) ->
     #console.log "query for facts: #{query}"
-    result = Facts.find(@getQuery(query), {sort: {timestamp_start: -1}})
+    result = Facts.find(@getQuery(query),
+      {sort: {timestamp_start: -1}})
     v = {}
     v[@props.pane] = result.count()
     #console.log "...and got counts: #{result.count()}"

@@ -23,6 +23,7 @@ Panoko.SearchQueryView = React.createFactory React.createClass
     unless @props.shown
       return DOM.div()
     DOM.div {class: 'query-pane'}, [
+      @pagination(),
       DOM.table {class:'table'}, [
         @thead(['engine','query', 'path']),
         DOM.tbody @state.facts.map (fact) =>
@@ -58,6 +59,7 @@ Panoko.CredView = React.createFactory React.createClass
     unless @props.shown
       return DOM.div()
     DOM.div {class: 'cred-pane'}, [
+      @pagination(),
       DOM.table {class:'table'}, [
         @thead(['provider','username','email','password']),
         DOM.tbody @state.facts.map (fact) =>
@@ -220,7 +222,7 @@ Panoko.EmailView = React.createFactory React.createClass
               DOM.td(key:'frm', "#{fact.frm_name or '?'} <#{fact.frm}>"),
               DOM.td({
                 key:'to',
-                dangerouslySetInnerHTML: @raw_html("#{fact.to_name or '?'} #{to_emails}")}, null),
+                dangerouslySetInnerHTML: @raw_html("#{fact.to_name or ''} #{to_emails}")}, null),
               DOM.td(key:'subject', (fact.subject or '(none)')),
               DOM.td({key:'content', dangerouslySetInnerHTML: @raw_html(fact.content)}, null)
               ]
