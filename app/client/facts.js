@@ -61,6 +61,76 @@
     }
   }));
 
+  Panoko.BrowseView = React.createFactory(React.createClass({
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
+    getInitialState: function() {
+      return {
+        facts: []
+      };
+    },
+    getQuery: function(query) {
+      var qrx;
+      qrx = RegExp(query);
+      return {
+        $and: [
+          {
+            kind: 'get'
+          }, {
+            $or: [
+              {
+                path: qrx
+              }, {
+                query_string: qrx
+              }, {
+                host: qrx
+              }
+            ]
+          }
+        ]
+      };
+    },
+    query_variables: function(query) {
+      return DOM.ul({
+        "class": 'query-string'
+      }, _.map(query, function(v, k) {
+        return DOM.li("" + k + " = " + (v.join(', ')));
+      }));
+    },
+    render: function() {
+      var more_button, table,
+        _this = this;
+      if (!this.props.shown) {
+        return DOM.div();
+      }
+      more_button = this.pagination();
+      table = DOM.table({
+        key: 'facts',
+        "class": 'table'
+      }, [
+        this.thead(['hostname', 'path', 'query']), DOM.tbody(this.state.facts.map(function(fact) {
+          return DOM.tr({
+            key: fact._id
+          }, [
+            Panoko.TimeField({
+              fact: fact
+            }), Panoko.IPField({
+              fact: fact
+            }), DOM.td({
+              key: 'host'
+            }, "" + fact.host), DOM.td({
+              key: 'path'
+            }, "" + fact.path), DOM.td({
+              key: 'query'
+            }, _this.query_variables(fact.query))
+          ]);
+        }))
+      ]);
+      return DOM.div({
+        "class": 'query-pane'
+      }, [table, more_button]);
+    }
+  }));
+
   Panoko.CredView = React.createFactory(React.createClass({
     mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
     getInitialState: function() {

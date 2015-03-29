@@ -34,6 +34,49 @@ Panoko.SearchQueryView = React.createFactory React.createClass
     DOM.div {class: 'query-pane'}, [table, more_button]
     
 
+Panoko.BrowseView = React.createFactory React.createClass
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
+  getInitialState: ->
+    {
+      facts: []
+    }
+
+  getQuery: (query) ->
+    qrx = RegExp(query)
+    $and: [
+      {kind: 'get'},
+      {$or: [
+        {path: qrx},
+        {query_string: qrx},
+        {host: qrx}
+        ]}
+      ]
+
+  query_variables: (query) ->
+    DOM.ul
+      class: 'query-string',
+      _.map query, (v, k) ->
+        DOM.li "#{k} = #{v.join(', ')}"
+    
+  render: ->
+    unless @props.shown
+      return DOM.div()
+    more_button = @pagination()
+    table = DOM.table {key: 'facts', class:'table'}, [
+      @thead(['hostname','path', 'query']),
+      DOM.tbody @state.facts.map (fact) =>
+          DOM.tr key: fact._id, [
+            Panoko.TimeField(fact: fact),
+            Panoko.IPField(fact: fact),
+            DOM.td(key: 'host', "#{fact.host}"),
+            DOM.td(key: 'path', "#{fact.path}"),
+            DOM.td({key: 'query'}, @query_variables(fact.query)),
+            ]
+      ]
+    DOM.div {class: 'query-pane'}, [table, more_button]
+    
+
+
 Panoko.CredView = React.createFactory React.createClass
   mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
   getInitialState: ->
