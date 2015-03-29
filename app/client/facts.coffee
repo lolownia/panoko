@@ -63,9 +63,9 @@ Panoko.CredView = React.createFactory React.createClass
               Panoko.TimeField(fact: fact),
               Panoko.IPField(fact: fact),
               DOM.td(key: 'provider', "#{fact.provider}"),
-              DOM.td(key: 'username', "#{fact.id}"),
-              DOM.td(key: 'email', "#{fact.email}"),
-              DOM.td(key: 'password', "#{fact.password}"),
+              DOM.td(key: 'username', (fact.id or '(no data)')),
+              DOM.td(key: 'email', (fact.email or '(no data)')),
+              DOM.td(key: 'password', (fact.password or '(no data)')),
               ]
         ]]
     
@@ -130,3 +130,35 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
               ]
         ]
 
+
+Panoko.UploadView = React.createFactory React.createClass
+  mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
+  getInitialState: ->
+    {
+      facts: []
+    }
+  getQuery: (query) ->
+    qrx = RegExp query
+    $and:
+      [
+        kind: 'upload',
+        filename: qrx
+      ]
+
+  render: ->
+    unless @props.shown
+      return DOM.div()
+    DOM.div class: 'upload-pane',
+      DOM.table {class:'table'}, [
+        @thead(['provider', 'filename', 'content']),
+        DOM.tbody
+          key:'tbody',
+          @state.facts.map (fact) =>
+            DOM.tr key: fact._id, [
+              Panoko.TimeField(fact: fact),
+              Panoko.IPField(fact: fact),
+              DOM.td({key: 'provider'}, fact.provider),
+              DOM.td({key: 'filename'}, fact.filename),
+              DOM.td({key: 'type'}, fact.mime),
+              DOM.td({key: 'content'}, fact.content),
+              ]]

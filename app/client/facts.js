@@ -109,11 +109,11 @@
                 key: 'provider'
               }, "" + fact.provider), DOM.td({
                 key: 'username'
-              }, "" + fact.id), DOM.td({
+              }, fact.id || '(no data)'), DOM.td({
                 key: 'email'
-              }, "" + fact.email), DOM.td({
+              }, fact.email || '(no data)'), DOM.td({
                 key: 'password'
-              }, "" + fact.password)
+              }, fact.password || '(no data)')
             ]);
           }))
         ])
@@ -204,6 +204,60 @@
             }), _this.just_recipients(fact.frm, fact.frm_name, fact.to, fact.to_name), DOM.td({
               key: 'content'
             }, "" + fact.content)
+          ]);
+        }))
+      ]));
+    }
+  }));
+
+  Panoko.UploadView = React.createFactory(React.createClass({
+    mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
+    getInitialState: function() {
+      return {
+        facts: []
+      };
+    },
+    getQuery: function(query) {
+      var qrx;
+      qrx = RegExp(query);
+      return {
+        $and: [
+          {
+            kind: 'upload',
+            filename: qrx
+          }
+        ]
+      };
+    },
+    render: function() {
+      var _this = this;
+      if (!this.props.shown) {
+        return DOM.div();
+      }
+      return DOM.div({
+        "class": 'upload-pane'
+      }, DOM.table({
+        "class": 'table'
+      }, [
+        this.thead(['provider', 'filename', 'content']), DOM.tbody({
+          key: 'tbody'
+        }, this.state.facts.map(function(fact) {
+          return DOM.tr({
+            key: fact._id
+          }, [
+            Panoko.TimeField({
+              fact: fact
+            }), Panoko.IPField({
+              fact: fact
+            }), DOM.td({
+              key: 'provider'
+            }, fact.provider), DOM.td({
+              key: 'filename'
+            }, fact.filename), DOM.td({
+              key: 'type'
+            }, fact.mime), DOM.td({
+              key: 'content'
+            }, fact.content)
           ]);
         }))
       ]));
