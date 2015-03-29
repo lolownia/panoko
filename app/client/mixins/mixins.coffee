@@ -12,7 +12,7 @@ Panoko.QueryMixin =
 
   queryFacts: (query) ->
     #console.log "query for facts: #{query}"
-    result = Facts.find(@getQuery(query))
+    result = Facts.find(@getQuery(query), {sort: {timestamp_start: -1}})
     v = {}
     v[@props.pane] = result.count()
     #console.log "...and got counts: #{result.count()}"

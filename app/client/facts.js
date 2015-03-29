@@ -5,24 +5,6 @@
     window.Panoko = {};
   }
 
-  Panoko.PaneView = {
-    thead: function(headers) {
-      var clock;
-      clock = DOM.th({
-        key: 'time'
-      }, DOM.i({
-        "class": 'fa fa-clock-o'
-      }, []));
-      return DOM.thead({
-        key: 'thead'
-      }, DOM.tr([clock].concat(_.map(headers, function(fn) {
-        return DOM.th({
-          key: fn
-        }, fn);
-      }))));
-    }
-  };
-
   Panoko.SearchQueryView = React.createFactory(React.createClass({
     mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView],
     getInitialState: function() {
@@ -60,6 +42,8 @@
               key: fact._id
             }, [
               Panoko.TimeField({
+                fact: fact
+              }), Panoko.IPField({
                 fact: fact
               }), DOM.td({
                 key: 'kind'
@@ -118,6 +102,8 @@
               key: fact._id
             }, [
               Panoko.TimeField({
+                fact: fact
+              }), Panoko.IPField({
                 fact: fact
               }), DOM.td({
                 key: 'provider'
@@ -183,6 +169,15 @@
       }
       return s;
     },
+    just_recipients: function(frm, frm_name, to, to_name) {
+      to = _.reject(to, (function(x) {
+        return x === frm;
+      }));
+      return Panoko.FacebookUsers({
+        names: to_name,
+        fbids: to
+      });
+    },
     render: function() {
       var _this = this;
       if (!this.props.shown) {
@@ -201,11 +196,12 @@
           }, [
             Panoko.TimeField({
               fact: fact
-            }), DOM.td({
-              key: 'from'
-            }, "" + (_this.na(fact.frm)) + " " + (_this.na(fact.frm_name))), DOM.td({
-              key: 'to'
-            }, "" + (_this.na(fact.to)) + ", " + (_this.na(fact.to_name))), DOM.td({
+            }), Panoko.IPField({
+              fact: fact
+            }), Panoko.FacebookUsers({
+              fbids: [fact.frm],
+              names: fact.frm_name
+            }), _this.just_recipients(fact.frm, fact.frm_name, fact.to, fact.to_name), DOM.td({
               key: 'content'
             }, "" + fact.content)
           ]);

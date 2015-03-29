@@ -19,7 +19,11 @@
     },
     queryFacts: function(query) {
       var result, v;
-      result = Facts.find(this.getQuery(query));
+      result = Facts.find(this.getQuery(query), {
+        sort: {
+          timestamp_start: -1
+        }
+      });
       v = {};
       v[this.props.pane] = result.count();
       this.publish('counts', v);
