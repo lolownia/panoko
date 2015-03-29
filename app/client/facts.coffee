@@ -44,13 +44,15 @@ Panoko.CredView = React.createFactory React.createClass
     }
   getQuery: (query) ->
     qrx = RegExp query
+    or_stmt = @whereabouts(query)
+
     $and: [
       kind: 'cred',
       $or: [
         {id: qrx},
         {email: qrx},
         {password: qrx}
-        ]]
+        ].concat(or_stmt)]
         
   render: ->
     unless @props.shown
@@ -82,7 +84,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
     num = parseInt(query)
     qrx = RegExp query
 
-    or_stmt = []
+    or_stmt = @whereabouts(query)
     if num != NaN
       or_stmt = or_stmt.concat [
           {frm: num},
@@ -139,10 +141,14 @@ Panoko.UploadView = React.createFactory React.createClass
     }
   getQuery: (query) ->
     qrx = RegExp query
+    or_stmt = @whereabouts(query)
     $and:
       [
         {kind: 'upload'},
-        {filename: qrx}
+        {$or: [
+          {filename: qrx}
+          ].concat(or_stmt)
+        }
       ]
 
   render: ->
@@ -174,7 +180,7 @@ Panoko.EmailView = React.createFactory React.createClass
   getQuery: (query) ->
     qrx = RegExp query
 
-    or_stmt = []
+    or_stmt = @whereabouts(query)
     or_stmt = or_stmt.concat [
       {id: query},
       {reply: query},
@@ -210,7 +216,7 @@ Panoko.EmailView = React.createFactory React.createClass
               Panoko.TimeField(fact: fact),
               Panoko.IPField(fact: fact),
               DOM.td(key:'provider', (fact.provider)),
-              DOM.td({key:'reply'}, @searchableData(fact.reply)),
+              DOM.td({key:'reply'}, @searchable(fact.reply, fact.reply)),
               DOM.td(key:'frm', "#{fact.frm_name or '?'} <#{fact.frm}>"),
               DOM.td({
                 key:'to',

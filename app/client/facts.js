@@ -67,8 +67,9 @@
       };
     },
     getQuery: function(query) {
-      var qrx;
+      var or_stmt, qrx;
       qrx = RegExp(query);
+      or_stmt = this.whereabouts(query);
       return {
         $and: [
           {
@@ -81,7 +82,7 @@
               }, {
                 password: qrx
               }
-            ]
+            ].concat(or_stmt)
           }
         ]
       };
@@ -132,7 +133,7 @@
       var num, or_stmt, qrx;
       num = parseInt(query);
       qrx = RegExp(query);
-      or_stmt = [];
+      or_stmt = this.whereabouts(query);
       if (num !== NaN) {
         or_stmt = or_stmt.concat([
           {
@@ -219,14 +220,19 @@
       };
     },
     getQuery: function(query) {
-      var qrx;
+      var or_stmt, qrx;
       qrx = RegExp(query);
+      or_stmt = this.whereabouts(query);
       return {
         $and: [
           {
             kind: 'upload'
           }, {
-            filename: qrx
+            $or: [
+              {
+                filename: qrx
+              }
+            ].concat(or_stmt)
           }
         ]
       };
@@ -276,7 +282,7 @@
     getQuery: function(query) {
       var or_stmt, q, qrx;
       qrx = RegExp(query);
-      or_stmt = [];
+      or_stmt = this.whereabouts(query);
       or_stmt = or_stmt.concat([
         {
           id: query
@@ -334,7 +340,7 @@
               key: 'provider'
             }, fact.provider), DOM.td({
               key: 'reply'
-            }, _this.searchableData(fact.reply)), DOM.td({
+            }, _this.searchable(fact.reply, fact.reply)), DOM.td({
               key: 'frm'
             }, "" + (fact.frm_name || '?') + " <" + fact.frm + ">"), DOM.td({
               key: 'to',

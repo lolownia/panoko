@@ -20,6 +20,11 @@ Panoko.QueryMixin =
     @publish 'counts', v
     @setState facts: result
 
+  whereabouts: (query) ->
+    if query.match(/^\d+[.]\d+[.]\d+[.]\d+$/)
+      return [{'client': query}]
+    return []
+
 window.globalState = {}
 
 # needs @globals = []
@@ -82,19 +87,3 @@ Panoko.SyncState =
   publish: (prop, obj) ->
     $(document).trigger "syncstate.#{prop}", obj
 
-Panoko.RunSearch =
-  runSearch: (query) ->
-    frm = $(".navbar-search")
-    frm.find('input[type=text]').val(query)
-    #frm.submit() # why this doesnt work?
-
-
-  searchableData: (data) ->
-    if not data
-      return ''
-    DOM.a
-      href: "#"
-      onClick: ((ev) =>
-        ev.preventDefault()
-        @runSearch(data)),
-      "#{data}"

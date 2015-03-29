@@ -15,7 +15,27 @@ Panoko.PaneView =
         _.map headers, (fn)-> DOM.th(key:fn, fn)))
       )
 
+Panoko.RunSearch =
+  runSearch: (query) ->
+    frm = $(".navbar-search")
+    frm.find('input[type=text]').val(query)
+
+  searchable: (query, elems) ->
+    if not elems
+      return ''
+    if not query
+      return elems
+      
+    DOM.a
+      href: "#"
+      onClick: ((ev) =>
+        ev.preventDefault()
+        @runSearch(query)),
+      elems
+
+
 Panoko.IPField = React.createFactory React.createClass
+  mixins: [Panoko.RunSearch]
   ip_ending: ->
     @props.fact.client.split('.').splice(-1)
     
@@ -24,7 +44,7 @@ Panoko.IPField = React.createFactory React.createClass
       key: 'id'
       class: 'table-ip'
       title: "#{@props.fact.client}",
-      "...#{@ip_ending()}"
+      @searchable(@props.fact.client, "...#{@ip_ending()}")
       
 Panoko.TimeField = React.createFactory React.createClass
   timeString: (milliseconds) ->

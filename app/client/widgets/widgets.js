@@ -33,7 +33,32 @@
     }
   };
 
+  Panoko.RunSearch = {
+    runSearch: function(query) {
+      var frm;
+      frm = $(".navbar-search");
+      return frm.find('input[type=text]').val(query);
+    },
+    searchable: function(query, elems) {
+      var _this = this;
+      if (!elems) {
+        return '';
+      }
+      if (!query) {
+        return elems;
+      }
+      return DOM.a({
+        href: "#",
+        onClick: (function(ev) {
+          ev.preventDefault();
+          return _this.runSearch(query);
+        })
+      }, elems);
+    }
+  };
+
   Panoko.IPField = React.createFactory(React.createClass({
+    mixins: [Panoko.RunSearch],
     ip_ending: function() {
       return this.props.fact.client.split('.').splice(-1);
     },
@@ -42,7 +67,7 @@
         key: 'id',
         "class": 'table-ip',
         title: "" + this.props.fact.client
-      }, "..." + (this.ip_ending()));
+      }, this.searchable(this.props.fact.client, "..." + (this.ip_ending())));
     }
   }));
 
