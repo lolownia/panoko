@@ -15,7 +15,7 @@ Panoko.SearchQueryView = React.createFactory React.createClass
       {kind: 'query'},
       {query: qrx}
       ]
-      
+
   render: ->
     unless @props.shown
       return DOM.div()
@@ -32,7 +32,7 @@ Panoko.SearchQueryView = React.createFactory React.createClass
             ]
       ]
     DOM.div {class: 'query-pane'}, [table, more_button]
-    
+
 
 Panoko.BrowseView = React.createFactory React.createClass
   mixins: [Panoko.QueryMixin, Panoko.SyncState, Panoko.PaneView]
@@ -43,38 +43,42 @@ Panoko.BrowseView = React.createFactory React.createClass
 
   getQuery: (query) ->
     qrx = RegExp(query)
-    $and: [
+    q = $and: [
       {kind: 'get'},
       {$or: [
         {path: qrx},
         {query_string: qrx},
-        {host: qrx}
+        {host: qrx},
+        {title: qrx}
         ]}
       ]
+    console.log "get query ", q
+    q
 
   query_variables: (query) ->
     DOM.ul
       class: 'query-string',
       _.map query, (v, k) ->
         DOM.li "#{k} = #{v.join(', ')}"
-    
+
   render: ->
     unless @props.shown
       return DOM.div()
     more_button = @pagination()
     table = DOM.table {key: 'facts', class:'table'}, [
-      @thead(['hostname','path', 'query']),
+      @thead(['hostname','path', 'title', 'query']),
       DOM.tbody @state.facts.map (fact) =>
           DOM.tr key: fact._id, [
             Panoko.TimeField(fact: fact),
             Panoko.IPField(fact: fact),
             DOM.td(key: 'host', "#{fact.host}"),
             DOM.td(key: 'path', "#{fact.path}"),
+            DOM.td(key: 'title', "#{fact.title}")
             DOM.td({key: 'query'}, @query_variables(fact.query)),
             ]
       ]
     DOM.div {class: 'query-pane'}, [table, more_button]
-    
+
 
 
 Panoko.CredView = React.createFactory React.createClass
@@ -94,7 +98,7 @@ Panoko.CredView = React.createFactory React.createClass
         {email: qrx},
         {password: qrx}
         ].concat(or_stmt)]
-        
+
   render: ->
     unless @props.shown
       return DOM.div()
@@ -110,9 +114,11 @@ Panoko.CredView = React.createFactory React.createClass
             DOM.td(key: 'email', (fact.email or '(no data)')),
             DOM.td(key: 'password', (fact.password or '(no data)')),
             ]
-      ]
+        ]      
+
+
     DOM.div {class: 'cred-pane'}, [table, more_button]
-    
+
 
 
 Panoko.FacebookMessageView = React.createFactory React.createClass
@@ -121,7 +127,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
     {
       facts: []
     }
-    
+
   getQuery: (query) ->
     num = parseInt(query)
     qrx = RegExp query
@@ -137,7 +143,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
       {frm_name: qrx},
       {to_name: qrx},
       ]
-      
+
     $and:
       [
         {kind: 'message'},
@@ -154,7 +160,7 @@ Panoko.FacebookMessageView = React.createFactory React.createClass
     Panoko.FacebookUsers
       names: to_name
       fbids: to
-  
+
   render: ->
     unless @props.shown
       return DOM.div()
@@ -220,7 +226,7 @@ Panoko.EmailView = React.createFactory React.createClass
     {
       facts: []
     }
-    
+
   getQuery: (query) ->
     qrx = RegExp query
 
@@ -235,20 +241,20 @@ Panoko.EmailView = React.createFactory React.createClass
       {frm_name: qrx},
       {to_name: qrx},
       ]
-      
+
     q = $and:
       [
         {kind: 'mail'},
         {$or: or_stmt}
       ]
-    console.log "Query:", q
+
     q
 
 
   render: ->
     unless @props.shown
       return DOM.div()
-      
+
     more_button = @pagination()
     table = DOM.table {class:'table'}, [
         @thead(['provider', 'reply' , 'from', 'to', 'subject', 'content']),
