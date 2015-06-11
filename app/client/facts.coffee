@@ -11,9 +11,11 @@ Panoko.SearchQueryView = React.createFactory React.createClass
   getQuery: (query) ->
     num = parseInt(query)
     qrx = RegExp(query)
+    or_stmt = @whereabouts(query)
+
     $and: [
       {kind: 'query'},
-      {query: qrx}
+      {$or: [{query: qrx}].concat(or_stmt)}
       ]
 
   render: ->
@@ -43,6 +45,8 @@ Panoko.BrowseView = React.createFactory React.createClass
 
   getQuery: (query) ->
     qrx = RegExp(query)
+    or_stmt = @whereabouts(query)
+
     q = $and: [
       {kind: 'get'},
       {$or: [
@@ -50,7 +54,7 @@ Panoko.BrowseView = React.createFactory React.createClass
         {query_string: qrx},
         {host: qrx},
         {title: qrx}
-        ]}
+        ].concat(or_stmt)}
       ]
     console.log "get query ", q
     q
@@ -114,7 +118,7 @@ Panoko.CredView = React.createFactory React.createClass
             DOM.td(key: 'email', (fact.email or '(no data)')),
             DOM.td(key: 'password', (fact.password or '(no data)')),
             ]
-        ]      
+        ]
 
 
     DOM.div {class: 'cred-pane'}, [table, more_button]

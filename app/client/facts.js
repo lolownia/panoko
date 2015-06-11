@@ -11,15 +11,20 @@
       };
     },
     getQuery: function(query) {
-      var num, qrx;
+      var num, or_stmt, qrx;
       num = parseInt(query);
       qrx = RegExp(query);
+      or_stmt = this.whereabouts(query);
       return {
         $and: [
           {
             kind: 'query'
           }, {
-            query: qrx
+            $or: [
+              {
+                query: qrx
+              }
+            ].concat(or_stmt)
           }
         ]
       };
@@ -68,8 +73,9 @@
       };
     },
     getQuery: function(query) {
-      var q, qrx;
+      var or_stmt, q, qrx;
       qrx = RegExp(query);
+      or_stmt = this.whereabouts(query);
       q = {
         $and: [
           {
@@ -85,7 +91,7 @@
               }, {
                 title: qrx
               }
-            ]
+            ].concat(or_stmt)
           }
         ]
       };
